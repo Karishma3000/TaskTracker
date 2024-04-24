@@ -1,6 +1,7 @@
 package com.task.todolist.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -45,7 +46,7 @@ public class Task {
 	private LocalDate creationDate;
 
 	@Column(name = "completion_date")
-	private LocalDate completionDate;
+	private LocalDateTime completionDate;
 
 	@Column(name = "priority")
 	private priorityEnum priority;
@@ -70,6 +71,6 @@ public class Task {
 	
 	@ElementCollection
 	@CollectionTable(name = "CollectionHistory", joinColumns = @JoinColumn(name = "taskId"))
-	List<LocalDate> completionDateHistory = new ArrayList<LocalDate>();
+	List<LocalDateTime> completionDateHistory = new ArrayList<LocalDateTime>();
 
 }

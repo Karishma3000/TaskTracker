@@ -7,9 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.task.todolist.entity.Task;
 
 
@@ -40,5 +37,8 @@ public interface TaskController {
 
 	@GetMapping("/remainning")
 	public ResponseEntity<List<Task>> getRemainningTask();
+
+	@GetMapping("/getNotification")
+	public String schedularNotification();
 
 }

@@ -1,6 +1,7 @@
 package com.task.todolist.serviceImp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,7 +21,12 @@ public class TaskServiceImp implements TaskService {
 
 	@Autowired
 	private TaskRepository taskRepository;
-	
+
+	public TaskServiceImp(TaskRepository taskRepository) {
+		super();
+		this.taskRepository = taskRepository;
+	}
+
 	@Override
 	public List<Task> getByUserId(Long userId) {
 		try {
@@ -78,25 +84,25 @@ public class TaskServiceImp implements TaskService {
 	public Task addTask(Task task) {
 		log.info("task :{}", task);
 		try {
-			if(task.getTitle()!=null && task.getUserId()!=null) {
-			Optional<Task> existingTask = taskRepository.findTaskByTitleAndUserId(task.getTitle().toLowerCase(),
-					task.getUserId());
-			log.info("existingTask :{}", existingTask);
-			if (existingTask.isEmpty()) {
-				log.info("existingTask is empty we can add new task");
-				Task newTask = new Task();
-				
-				newTask.setTitle(task.getTitle().toLowerCase());
-				newTask.setUserId(task.getUserId());
-				newTask.setDescription(task.getDescription());
-				newTask.setCompletionDate(task.getCompletionDate());
-				newTask.setPriority(task.getPriority());
-				newTask.setStatus(task.getStatus());
-				newTask.setRating(task.getRating());
-                newTask.setTodoType(task.getTodoType());
-                newTask.setTags(task.getTags());
-				return taskRepository.save(newTask);
-			}
+			if (task.getTitle() != null && task.getUserId() != null) {
+				Optional<Task> existingTask = taskRepository.findTaskByTitleAndUserId(task.getTitle().toLowerCase(),
+						task.getUserId());
+				log.info("existingTask :{}", existingTask);
+				if (existingTask.isEmpty()) {
+					log.info("existingTask is empty we can add new task");
+					Task newTask = new Task();
+
+					newTask.setTitle(task.getTitle().toLowerCase());
+					newTask.setUserId(task.getUserId());
+					newTask.setDescription(task.getDescription());
+					newTask.setCompletionDate(task.getCompletionDate());
+					newTask.setPriority(task.getPriority());
+					newTask.setStatus(task.getStatus());
+					newTask.setRating(task.getRating());
+					newTask.setTodoType(task.getTodoType());
+					newTask.setTags(task.getTags());
+					return taskRepository.save(newTask);
+				}
 			}
 
 		} catch (Exception e) {
@@ -109,26 +115,26 @@ public class TaskServiceImp implements TaskService {
 	@Override
 	public Task updateTask(Task newTask, Integer id) {
 		try {
-			if(id!=null && newTask!=null) {
-			Optional<Task> task = taskRepository.findById(id);
-			log.info("update task :{}", task);
+			if (id != null && newTask != null) {
+				Optional<Task> task = taskRepository.findById(id);
+				log.info("update task :{}", task);
 
-			if (task.isPresent()) {
-				log.info(" task is not null :{}", task);
+				if (task.isPresent()) {
+					log.info(" task is not null :{}", task);
 
-				if (newTask.getDescription() != null) {
-					log.info(" description is not null :{}", newTask.getDescription());
-					task.get().setDescription(newTask.getDescription());
+					if (newTask.getDescription() != null) {
+						log.info(" description is not null :{}", newTask.getDescription());
+						task.get().setDescription(newTask.getDescription());
+					}
+					if (newTask.getCompletionDate() != null) {
+						log.info(" completionDate is not null :{}", newTask.getCompletionDate());
+						task.get().getCompletionDateHistory().add(task.get().getCompletionDate());
+						task.get().setCompletionDate(newTask.getCompletionDate());
+					}
+
+					return taskRepository.save(task.get());
+
 				}
-				if (newTask.getCompletionDate() != null) {
-					log.info(" completionDate is not null :{}", newTask.getCompletionDate());					task.get().getCompletionDateHistory().add(task.get().getCompletionDate());
-					task.get().setCompletionDate(newTask.getCompletionDate());
-				}
-
-
-				return taskRepository.save(task.get());
-
-			}
 			}
 
 		} catch (Exception e) {
@@ -191,7 +197,7 @@ public class TaskServiceImp implements TaskService {
 	}
 
 	@Override
-	public List<Task> getTaskByCompletionDate(LocalDate completionDate) {
+	public List<Task> getTaskByCompletionDate(LocalDateTime completionDate) {
 		try {
 
 			List<Task> task = taskRepository.findTaskByCompletionDate(completionDate);
@@ -203,7 +209,7 @@ public class TaskServiceImp implements TaskService {
 
 					return task1;
 				}
-			} 
+			}
 		} catch (Exception e) {
 			log.error("exception in getTaskByCompletionDate:{} ", e);
 		}
@@ -211,6 +217,33 @@ public class TaskServiceImp implements TaskService {
 		return null;
 	}
 
+	@Override
+	public String ScheduleNotification() {
+		System.out.println("scheduler");
+		LocalDateTime currentTime = LocalDateTime.now();
 
+		List<Task> taskList = taskRepository.findAll();
+		for (Task task : taskList) {
+			System.out.println(currentTime);
+			LocalDateTime complitiontime = task.getCompletionDate();
+			System.out.println(complitiontime);
+			System.out.println(task.getCompletionDate());
+//			if (task.getCompletionDate().isAfter(currentTime) && task.getCompletionDate().isBefore(complitiontime)) {
+			if (currentTime.withSecond(0).withNano(0).equals(complitiontime.minusHours(1).withSecond(0).withNano(0))) {
+				System.out.println("your task" + task.getTitle() + " is near complition date");
+				return "your task" + task.getTitle() + " is near complition date";
+			}
+		}
+		return null;
+
+//		for(Task task: taskRepository.findAll()) {
+//			
+//			if(task.getCompletionDate().minusHours(1).withSecond(0)==LocalDateTime.now().withSecond(0)){
+//				System.out.println(task);
+//				return "complete your task";
+//			}
+//		}
+//		return null;
+	}
 
 }

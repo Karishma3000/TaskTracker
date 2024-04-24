@@ -1,5 +1,6 @@
 package com.task.todolist.repository;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +23,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
     
     public List<Task> findTaskByCreationDate(LocalDate creationDate) ;
     
-    public List<Task> findTaskByCompletionDate(LocalDate completionDate) ;
+    public List<Task> findTaskByCompletionDate(LocalDateTime completionDate) ;
 
     public List<Task> findByuserId(Long userId);
     

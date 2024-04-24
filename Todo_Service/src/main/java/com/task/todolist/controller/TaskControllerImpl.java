@@ -5,9 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +23,7 @@ public class TaskControllerImpl implements TaskController {
 
 	@Autowired
 	private TaskService taskService;
-	
+
 	public ResponseEntity<List<Task>> findAllTask() {
 		try {
 			log.info("fetching all tasks");
@@ -54,8 +53,6 @@ public class TaskControllerImpl implements TaskController {
 
 		return null;
 	}
-
-	
 
 	public ResponseEntity<Task> getTaskById(@PathVariable Integer id) {
 		if (id != 0 && id != null) {
@@ -170,6 +167,18 @@ public class TaskControllerImpl implements TaskController {
 			}
 		} catch (Exception e) {
 			log.info("exception : {}", e);
+		}
+		return null;
+	}
+
+	@Override
+	@Scheduled(fixedRate = 6000)
+	public String schedularNotification() {
+		try {
+			String string = taskService.ScheduleNotification();
+			return string;
+		} catch (Exception e) {
+			log.error(e.toString());
 		}
 		return null;
 	}
