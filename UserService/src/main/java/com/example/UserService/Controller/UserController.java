@@ -19,6 +19,10 @@ import com.example.UserService.Entity.User;
 
 public interface UserController {
 
+
+	@GetMapping("/getUsers")
+	public List<User> getAllUsers();
+	
 	@PostMapping("/createUser")
 	public String createUser(@RequestBody User user);
 
@@ -34,8 +38,6 @@ public interface UserController {
 	@PostMapping("/deleteUser")
 	public ResponseEntity<String> deleteUser(@RequestParam Long id);
 
-	@GetMapping("/getUsers")
-	public List<User> getAllUsers();
 	
 	
 	@PostMapping("/upload")

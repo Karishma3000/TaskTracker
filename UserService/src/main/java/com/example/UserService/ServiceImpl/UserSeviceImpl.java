@@ -147,12 +147,12 @@ public class UserSeviceImpl implements UserService {
 	@Override
 	public List<User> getUsersBetweenDates(Date startDate, Date endDate) {
 		try {
-			List<User> userList=userRepository.findByCreationDateBetween(startDate, endDate).get();
-			if(!userList.isEmpty())
+			List<User> userList = userRepository.findByCreationDateBetween(startDate, endDate).get();
+			if (!userList.isEmpty())
 				logger.info("user List is not empty");
-				return userList; 
+			return userList;
 		} catch (Exception e) {
-			logger.error("exception :{}",e);
+			logger.error("exception :{}", e);
 		}
 		return null;
 	}
@@ -160,41 +160,36 @@ public class UserSeviceImpl implements UserService {
 	@Override
 	public String uploadImage(String path, MultipartFile file) {
 		// TODO Auto-generated method stub
-		
-				//File name
-				
-				String name=file.getOriginalFilename();
-				// File Path
-				
-				String filePath=path+File.separator+name;
-				
-				//create folder if not created
-				
-				File f=new File(path);
-				if(!f.exists())
-				{
-					f.mkdir();
-				}
-				
-				
-				//file copy
-				
-				
-				try {
-					
-					File files = new File("images/"+file.getOriginalFilename());
-					if(files.exists()) {
-						System.out.println("file already exist");
-					} else {
-						Files.copy(file.getInputStream(), Paths.get(filePath));
-					}
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return name;
-			}
 
+		// File name
+
+		String name = file.getOriginalFilename();
+		// File Path
+
+		String filePath = path + File.separator + name;
+
+		// create folder if not created
+
+		File f = new File(path);
+		if (!f.exists()) {
+			f.mkdir();
+		}
+
+		// file copy
+
+		try {
+
+			File files = new File("images/" + file.getOriginalFilename());
+			if (files.exists()) {
+				System.out.println("file already exist");
+			} else {
+				Files.copy(file.getInputStream(), Paths.get(filePath));
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return name;
 	}
 
-
+}

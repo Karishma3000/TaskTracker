@@ -27,6 +27,7 @@ public class UserControllerImpl implements UserController {
 
 	@Autowired
 	private UserService userService;
+	
 	@Value("${project.image}")
 	private String path;
 	

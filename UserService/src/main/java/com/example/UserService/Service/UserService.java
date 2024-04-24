@@ -3,10 +3,12 @@ package com.example.UserService.Service;
 import java.sql.Date;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.UserService.Entity.User;
 
+@Service
 public interface UserService {
 
 	String createUser(User user);
