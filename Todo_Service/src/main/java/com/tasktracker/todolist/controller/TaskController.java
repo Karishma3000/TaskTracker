@@ -20,37 +20,37 @@ public interface TaskController {
 	public ResponseEntity<TaskResponse<Task>> getTaskByUserId(@PathVariable Long userId);
 
 	@PostMapping("/addTask")
-	public ResponseEntity<String> addTask(@RequestBody Task task);
+	public ResponseEntity<TaskResponse<Task>> addTask(@RequestBody Task task);
 
 	@GetMapping("/getAll")
-	public ResponseEntity<List<Task>> findAllTask(@RequestParam(defaultValue = "5", required = false) Integer pageSize,
+	public ResponseEntity<TaskResponse<List<Task>>> findAllTask(@RequestParam(defaultValue = "5", required = false) Integer pageSize,
 			@RequestParam(defaultValue = "0", required = false) Integer page);
 
 	@GetMapping("getTaskById/{id}")
-	public ResponseEntity<Task> getTaskById(@PathVariable Integer id);
+	public ResponseEntity<TaskResponse<Task>> getTaskById(@PathVariable Integer id);
 
 	@GetMapping("/getByTitle/{title}")
-	public ResponseEntity<List<Task>> getTaskByTitle(@PathVariable String title);
+	public ResponseEntity<TaskResponse<List<Task>>> getTaskByTitle(@PathVariable String title);
 
 	@GetMapping("/completionDate")
-	public ResponseEntity<List<Task>> getTaskByCompletionDate(
+	public ResponseEntity<TaskResponse<List<Task>> getTaskByCompletionDate(
 			@RequestParam("completionDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime completionDate);
 
 	@GetMapping("/creationDate")
-	public ResponseEntity<List<Task>> getTaskByCreationDate(
+	public ResponseEntity<TaskResponse<List<Task>> getTaskByCreationDate(
 			@RequestParam("creationDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime creationDate);
 
 	@GetMapping("/remainingTask")
-	public ResponseEntity<List<Task>> getRemainingTask();
+	public ResponseEntity<TaskResponse<List<Task>>> getRemainingTask();
 
 	@GetMapping("/incompleteTask")
-	public ResponseEntity<List<Task>> getIncompleteTask();
+	public ResponseEntity<TaskResponse<List<Task>>> getIncompleteTask();
 
 	@PostMapping("/delete/{id}")
 	public ResponseEntity<String> deleteTaskById(@PathVariable Integer id);
 
 	@PostMapping("/update/{id}")
-	public ResponseEntity<Task> updateTask(@RequestBody Task task, @PathVariable Integer id);;
+	public ResponseEntity<TaskResponse<Task>> updateTask(@RequestBody Task task, @PathVariable Integer id);;
 
 	@GetMapping("/getNotification")
 	public String schedularNotification();
