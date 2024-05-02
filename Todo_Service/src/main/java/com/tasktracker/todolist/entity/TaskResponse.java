@@ -7,10 +7,10 @@ import lombok.Data;
 @Data
 public class TaskResponse<T> {
 	
-	private List<Task> data;
+	private T data;
 	
 	private String message;
 	
-	private int statusCode;
+	private boolean status;
 
 }
