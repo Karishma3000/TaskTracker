@@ -32,7 +32,9 @@ public class TaskControllerImpl implements TaskController {
 			TaskResponse<Task> taskResponse = taskService.getByUserId(userId);
 			 if(taskResponse.getMessage().equals("success"))
 				return new ResponseEntity<TaskResponse<Task>>(taskResponse, HttpStatus.OK);
-		
+			 else 
+				 return new ResponseEntity<TaskResponse<Task>>(taskResponse, HttpStatus.OK);
+			
 		} catch (Exception e) {
 			log.info("exception : {}", e);
 		}
