@@ -33,11 +33,11 @@ public interface TaskController {
 	public ResponseEntity<TaskResponse<List<Task>>> getTaskByTitle(@PathVariable String title);
 
 	@GetMapping("/completionDate")
-	public ResponseEntity<TaskResponse<List<Task>> getTaskByCompletionDate(
+	public ResponseEntity<TaskResponse<List<Task>>> getTaskByCompletionDate(
 			@RequestParam("completionDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime completionDate);
 
 	@GetMapping("/creationDate")
-	public ResponseEntity<TaskResponse<List<Task>> getTaskByCreationDate(
+	public ResponseEntity<TaskResponse<List<Task>>> getTaskByCreationDate(
 			@RequestParam("creationDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime creationDate);
 
 	@GetMapping("/remainingTask")
