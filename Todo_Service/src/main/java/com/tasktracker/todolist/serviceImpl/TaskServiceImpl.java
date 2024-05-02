@@ -42,20 +42,21 @@ public class TaskServiceImpl implements TaskService {
 				taskResponse.setData( taskList.stream().sorted((task1, task2) -> task2.getPriority().compareTo(task1.getPriority()))
 						.collect(Collectors.toList()));
 				taskResponse.setMessage("success");
-				taskResponse.setStatusCode(HttpStatus.OK.value());
+				taskResponse.setStatusCode(true);
 				return taskResponse;
 			}
 		} catch (Exception e) {
 			log.error("exception " + e.toString());
 		}
 		taskResponse.setMessage("no data found");
+		taskResponse.setStatusCode(true);
 		return taskResponse;
 
 	}
 
 	@Override
-	public Task addTask(Task task) {
-		Task newTask = null;
+	public TaskResponse<Task> addTask(Task task) {
+		TaskResponse<Task> taskResponse =  new TaskResponse<Task>();
 		log.info("task :{}", task);
 		try {
 			if (task.getTitle() != null && task.getUserId() != null) {
@@ -65,7 +66,8 @@ public class TaskServiceImpl implements TaskService {
 				log.info("existingTask :{}", existingTask);
 				if (existingTask.isEmpty()) {
 					log.info("existingTask is empty we can add new task");
-
+					Task newTask = new Task();
+					
 					newTask.setTitle(task.getTitle().toLowerCase());
 					newTask.setUserId(task.getUserId());
 					newTask.setDescription(task.getDescription());
@@ -75,7 +77,11 @@ public class TaskServiceImpl implements TaskService {
 					newTask.setRating(task.getRating());
 					newTask.setTodoType(task.getTodoType());
 					newTask.setTags(task.getTags());
-					return taskRepository.save(newTask);
+					taskRepository.save(newTask);
+					taskResponse.setData( newTask);
+					taskResponse.setMessage("success");
+					taskResponse.setStatusCode(true);
+					return taskResponse;
 				}
 			}
 
@@ -83,134 +89,175 @@ public class TaskServiceImpl implements TaskService {
 			log.error("exception in addTask : {}", e);
 		}
 		log.info("task already exist");
-		return newTask;
+		taskResponse.setMessage("task not saved");
+		taskResponse.setStatusCode(false);
+		return taskResponse;
 	}
 
 	@Override
-	public List<Task> getAllTask(Pageable paging) {
-		List<Task> list = new ArrayList<Task>();
+	public TaskResponse<List<Task>> getAllTask(Pageable paging) {
+		TaskResponse<Task> taskResponse =  new TaskResponse<Task>();
 		try {
 			Page<Task> taskList = taskRepository.findAll(paging);
-			list = taskList.getContent();
+			List<Task> list = taskList.getContent();
 			log.info("list of tasks:{} ", taskList);
 			if (!list.isEmpty()) {
 				log.info("taskList is not empty");
-				return list.stream().sorted((task1, task2) -> task2.getPriority().compareTo(task1.getPriority()))
-						.collect(Collectors.toList());
+				taskResponse.setData( list.stream().sorted((task1, task2) -> task2.getPriority().compareTo(task1.getPriority()))
+						.collect(Collectors.toList()));
+				taskResponse.setMessage("success");
+				taskResponse.setStatusCode(true);
+				return taskResponse;
 			}
 
 		} catch (Exception e) {
 			log.error("exception in getAllTask :{} ", e);
 		}
 
-		return list;
+		taskResponse.setMessage("task not saved");
+		taskResponse.setStatusCode(false);
+		return taskResponse;
 
 	}
 
 	@Override
-	public Task getTaskById(Integer id) {
+	public TaskResponse<Task> getTaskById(Integer id) {
 		log.info("Id : {}", id);
-		Task taskObj = null;
+		TaskResponse<Task> taskResponse =  new TaskResponse<Task>();
 		try {
 			Optional<Task> task = taskRepository.findById(id);
 			if (!task.isEmpty()) {
-				taskObj = task.get();
+				Task taskObj = task.get();
 				log.info("task is not empty");
-				return taskObj;
+				taskResponse.setData( taskObj);
+				taskResponse.setMessage("task found");
+				taskResponse.setStatusCode(true);
+				return taskResponse;
 			}
 		} catch (Exception e) {
 			log.error("exception in getTaskById : {}", e);
 		}
 
-		return taskObj;
+		
+		taskResponse.setMessage("task not found");
+		taskResponse.setStatusCode(false);
+		return taskResponse;
 	}
 
 	@Override
-	public List<Task> getTaskByTitle(String title) {
-		List<Task> list = new ArrayList<Task>();
+	public TaskResponse<List<Task>> getTaskByTitle(String title) {
+		TaskResponse<Task> taskResponse =  new TaskResponse<Task>();
 		try {
-			list = taskDao.findTaskByTitle(title);
-			if (!list.isEmpty())
-				return list;
+			List<Task> list = taskDao.findTaskByTitle(title);
+			if (!list.isEmpty()){
+				taskResponse.setData( list);
+				taskResponse.setMessage("task found");
+				taskResponse.setStatusCode(true);
+				return taskResponse;
+			}
+
 		} catch (Exception e) {
 			log.error("exception {}", e);
 		}
-		return list;
+		taskResponse.setMessage("task not found");
+		taskResponse.setStatusCode(false);
+		return taskResponse;
 
 	}
 
 	@Override
-	public List<Task> getTaskByCompletionDate(LocalDateTime completionDate) {
-		List<Task> task = new ArrayList<Task>();
+	public TaskResponse<List<Task>> getTaskByCompletionDate(LocalDateTime completionDate) {
+		TaskResponse<Task> taskResponse =  new TaskResponse<Task>();
 		try {
-			task = taskRepository.findTaskByCompletionDate(completionDate);
+			List<Task> task = taskRepository.findTaskByCompletionDate(completionDate);
 			log.info("taskList:{} ", task);
 			if (!task.isEmpty()) {
-
 				log.info("taskList:{} ", task);
-
-				return task;
+				taskResponse.setData( task);
+				taskResponse.setMessage("task found");
+				taskResponse.setStatusCode(true);
+				return taskResponse;
 
 			}
 		} catch (Exception e) {
 			log.error("exception in getTaskByCompletionDate:{} ", e);
 		}
 		log.info("task not found");
-		return task;
+		taskResponse.setMessage("task not found");
+		taskResponse.setStatusCode(false);
+		return taskResponse;
 	}
 
 	@Override
-	public List<Task> getTaskByCreationDate(LocalDateTime creationDate) {
-		List<Task> task = new ArrayList<Task>();
+	public TaskResponse<List<Task>> getTaskByCreationDate(LocalDateTime creationDate) {
+		TaskResponse<Task> taskResponse =  new TaskResponse<Task>();
 		try {
-			task = taskRepository.findTaskByCreationDate(creationDate);
+			List<Task> task = taskRepository.findTaskByCreationDate(creationDate);
 			log.info("taskList :{}", task);
 			if (!task.isEmpty()) {
-				return task;
+				taskResponse.setData( task);
+				taskResponse.setMessage("task found");
+				taskResponse.setStatusCode(true);
+				return taskResponse;
 			}
 		} catch (Exception e) {
 			log.error("exception in getTaskByCreationDate : {}", e);
 		}
 		log.info("task not found");
-		return task;
+		taskResponse.setMessage("task not found");
+		taskResponse.setStatusCode(false);
+		return taskResponse;
 	}
 
 	@Override
-	public List<Task> getAllRemainingTask() {
-		List<Task> taskList = new ArrayList<Task>();
+	public TaskResponse<List<Task>> getAllRemainingTask() {
+		TaskResponse<Task> taskResponse =  new TaskResponse<Task>();
 		try {
 			LocalDate date = LocalDate.now();
-			taskList = taskRepository.getAllRemainingTask(date);
+			List<Task> taskList = taskRepository.getAllRemainingTask(date);
 			log.info("taskList " + taskList);
 			if (!taskList.isEmpty()) {
 				log.info("taskList is not empty :{}", taskList);
-				return taskList;
+				taskResponse.setData( taskList);
+				taskResponse.setMessage("task found");
+				taskResponse.setStatusCode(true);
+				return taskResponse;
 			}
 
 		} catch (Exception e) {
 			log.error("exception in updateTask :{} ", e);
 		}
 		log.info("tasks not found");
-		return taskList;
+		taskResponse.setMessage("task not found");
+		taskResponse.setStatusCode(false);
+		return taskResponse;
 	}
 
 	@Override
-	public List<Task> getIncompleteTask() {
-		List<Task> taskList = new ArrayList<Task>();
+	public TaskResponse<List<Task>> getIncompleteTask() {
+		TaskResponse<Task> taskResponse =  new TaskResponse<Task>();
+		
 		try {
-			taskList = taskRepository.findIncomplteTask();
-			if (!taskList.isEmpty())
-				return taskList;
+			List<Task> taskList = taskRepository.findIncomplteTask();
+			if (!taskList.isEmpty()){
+				taskResponse.setData( taskList);
+				taskResponse.setMessage("task found");
+				taskResponse.setStatusCode(true);
+				return taskResponse;
+			}
+	
 		} catch (Exception e) {
 			log.error("exception {}", e);
 		}
 
-		return taskList;
+		taskResponse.setMessage("task not found");
+		taskResponse.setStatusCode(false);
+		return taskResponse;
 	}
 
 	@Override
 	public boolean deleteTaskById(Integer id) {
-
+		TaskResponse<Task> taskResponse =  new TaskResponse<Task>();
 		try {
 			log.info("id : {}", id);
 			Optional<Task> task = taskRepository.findById(id);
@@ -228,8 +275,8 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	@Override
-	public Task updateTask(Task newTask, Integer id) {
-		Task taskObj = new Task();
+	public TaskResponse<Task> updateTask(Task newTask, Integer id) {
+		TaskResponse<Task> taskResponse =  new TaskResponse<Task>();
 		try {
 			if (id != null && newTask != null) {
 				Optional<Task> task = taskRepository.findById(id);
@@ -237,7 +284,7 @@ public class TaskServiceImpl implements TaskService {
 
 				if (task.isPresent()) {
 					log.info(" task is not null :{}", task);
-					taskObj = task.get();
+					Task taskObj taskObj = task.get();
 					if (newTask.getDescription() != null) {
 						log.info(" description is not null :{}", newTask.getDescription());
 						taskObj.setDescription(newTask.getDescription());
@@ -247,8 +294,11 @@ public class TaskServiceImpl implements TaskService {
 						taskObj.getCompletionDateHistory().add(task.get().getCompletionDate());
 						taskObj.setCompletionDate(newTask.getCompletionDate());
 					}
+					taskResponse.setData( taskObj);
+					taskResponse.setMessage("task updated");
+					taskResponse.setStatusCode(true);
+					return taskResponse;
 
-					return taskRepository.save(taskObj);
 				}
 			}
 
@@ -256,7 +306,10 @@ public class TaskServiceImpl implements TaskService {
 			log.error("exception in update task :{} ", e);
 		}
 		log.info("task not found with id : {}", id);
-		return taskObj;
+		taskResponse.setMessage("task not updated");
+		taskResponse.setStatusCode(false);
+		return taskResponse;
+		
 	}
 
 	@Override
