@@ -30,7 +30,7 @@ public class TaskControllerImpl implements TaskController {
 	public ResponseEntity<TaskResponse<Task>> getTaskByUserId(Long userId) {
 		try {
 			TaskResponse<Task> taskResponse = taskService.getByUserId(userId);
-			 if(taskResponse.getMessage().equals("success"))
+			 if(taskResponse.isStatus())
 				return new ResponseEntity<TaskResponse<Task>>(taskResponse, HttpStatus.OK);
 			 else 
 				 return new ResponseEntity<TaskResponse<Task>>(taskResponse, HttpStatus.NOT_FOUND);
@@ -47,13 +47,13 @@ public class TaskControllerImpl implements TaskController {
 		try {
 			if (task.getTitle() == null || task.getDescription() == null || task.getCompletionDate() == null
 					|| task.getUserId() == null) {
-				return new ResponseEntity<>(new TaskResponse<>("Task not added. Required fields are missing.", false), HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(new TaskResponse<Task>("Task not added. Required fields are missing.", false), HttpStatus.BAD_REQUEST);
 			}
 			log.info("adding new task : {}", task);
 
 			TaskResponse<Task> taskResponse = taskService.addTask(task);
 
-           		 if (taskResponse.getStatus()) {
+           		 if (taskResponse.isStatus()) {
                			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
            		 } else {
                			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
@@ -71,10 +71,10 @@ public class TaskControllerImpl implements TaskController {
 		try {
 			log.info("fetching all tasks");
 			Pageable paging = PageRequest.of(page, pageSize);
-			TaskResponse<Task> taskResponse  = taskService.getAllTask(paging);
-			log.info("taskList :{} ", taskList);
-			 if (taskResponse.getStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+			TaskResponse<List<Task>> taskResponse  = taskService.getAllTask(paging);
+			log.info("taskList :{} ", taskResponse.getData());
+			 if (taskResponse.isStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.FOUND);
            		 } else {
                			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
            		 }
@@ -90,9 +90,9 @@ public class TaskControllerImpl implements TaskController {
 			if (id != 0 && id != null) {
 				log.info("get Task By Id : {}", id);
 				TaskResponse<Task> taskResponse  = taskService.getTaskById(id);
-				log.info("task :{}", task);
-				if (taskResponse.getStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+				log.info("task :{}", taskResponse.getData());
+				if (taskResponse.isStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.FOUND);
            		 } else {
                			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
            		 }
@@ -106,9 +106,9 @@ public class TaskControllerImpl implements TaskController {
 	public ResponseEntity<TaskResponse<List<Task>>> getTaskByTitle(String title) {
 
 		try {
-			TaskResponse<Task> taskResponse= taskService.getTaskByTitle(title);
-			if (taskResponse.getStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+			TaskResponse<List<Task>> taskResponse= taskService.getTaskByTitle(title);
+			if (taskResponse.isStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.FOUND);
            		 } else {
                			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
            		 }
@@ -121,10 +121,10 @@ public class TaskControllerImpl implements TaskController {
 	@Override
 	public ResponseEntity<TaskResponse<List<Task>>> getTaskByCompletionDate(LocalDateTime completionDate) {
 		try {
-			TaskResponse<Task> taskResponse = taskService.getTaskByCompletionDate(completionDate);
-			log.info("taskList:{} ", taskList);
-			if (taskResponse.getStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+			TaskResponse<List<Task>> taskResponse = taskService.getTaskByCompletionDate(completionDate);
+			log.info("taskList:{} ", taskResponse.getData());
+			if (taskResponse.isStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.OK);
            		 } else {
                			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
            		 }
@@ -137,10 +137,10 @@ public class TaskControllerImpl implements TaskController {
 	@Override
 	public ResponseEntity<TaskResponse<List<Task>>> getTaskByCreationDate(LocalDateTime creationDate) {
 		try {
-			TaskResponse<Task> taskResponse = taskService.getTaskByCreationDate(creationDate);
-			log.info("taskList :{} ", taskList);
-			if (taskResponse.getStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+			TaskResponse<List<Task>> taskResponse = taskService.getTaskByCreationDate(creationDate);
+			log.info("taskList :{} ", taskResponse.getData());
+			if (taskResponse.isStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.OK);
            		 } else {
                			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
            		 }
@@ -153,10 +153,10 @@ public class TaskControllerImpl implements TaskController {
 	@Override
 	public ResponseEntity<TaskResponse<List<Task>>> getRemainingTask() {
 		try {
-			TaskResponse<Task> taskResponse= taskService.getAllRemainingTask();
-			log.info("taskList :{}", taskList);
-			if (taskResponse.getStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+			TaskResponse<List<Task>> taskResponse= taskService.getAllRemainingTask();
+			log.info("taskList :{}", taskResponse.getData());
+			if (taskResponse.isStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.OK);
            		 } else {
                			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
            		 }
@@ -170,9 +170,9 @@ public class TaskControllerImpl implements TaskController {
 	public ResponseEntity<TaskResponse<List<Task>>> getIncompleteTask() {
 
 		try {
-			TaskResponse<Task> taskResponse= taskService.getIncompleteTask();
-			if (taskResponse.getStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+			TaskResponse<List<Task>> taskResponse= taskService.getIncompleteTask();
+			if (taskResponse.isStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.OK);
            		 } else {
                			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
            		 }
@@ -183,7 +183,7 @@ public class TaskControllerImpl implements TaskController {
 	}
 
 	@Override
-	public ResponseEntity<Task> deleteTaskById(Integer id) {
+	public ResponseEntity<String> deleteTaskById(Integer id) {
 		try {
 			log.info("deleting task by id : {} ", id);
 			if (taskService.deleteTaskById(id)) {
@@ -198,13 +198,13 @@ public class TaskControllerImpl implements TaskController {
 	}
 
 	@Override
-	public ResponseEntity<Task> updateTask(Task task, Integer id) {
+	public ResponseEntity<TaskResponse<Task>> updateTask(Task task, Integer id) {
 		try {
 
 			log.info("updating the task :{}", task);
 			TaskResponse<Task> taskResponse= taskService.getTaskById(id);
-			if (taskResponse.getStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+			if (taskResponse.isStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.OK);
            		 } else {
                			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
            		 }
