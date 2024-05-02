@@ -33,7 +33,7 @@ public class TaskControllerImpl implements TaskController {
 			 if(taskResponse.getMessage().equals("success"))
 				return new ResponseEntity<TaskResponse<Task>>(taskResponse, HttpStatus.OK);
 			 else 
-				 return new ResponseEntity<TaskResponse<Task>>(taskResponse, HttpStatus.OK);
+				 return new ResponseEntity<TaskResponse<Task>>(taskResponse, HttpStatus.NOT_FOUND);
 			
 		} catch (Exception e) {
 			log.info("exception : {}", e);
@@ -43,138 +43,147 @@ public class TaskControllerImpl implements TaskController {
 	}
 
 	@Override
-	public ResponseEntity<String> addTask(Task task) {
+	public ResponseEntity<TaskResponse<Task>> addTask(Task task) {
 		try {
 			if (task.getTitle() == null || task.getDescription() == null || task.getCompletionDate() == null
 					|| task.getUserId() == null) {
-				return new ResponseEntity<String>("task not added", HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(new TaskResponse<>("Task not added. Required fields are missing.", false), HttpStatus.BAD_REQUEST);
 			}
 			log.info("adding new task : {}", task);
-			Task addedTask = taskService.addTask(task);
-			if (addedTask != null) {
-				return new ResponseEntity<String>("task added", HttpStatus.CREATED);
-			} else {
-				return new ResponseEntity<String>("task not added", HttpStatus.BAD_REQUEST);
-			}
 
-		} catch (Exception e) {
-			log.info("exception : {}", e);
-		}
-		return new ResponseEntity<String>("task not added", HttpStatus.NOT_FOUND);
+			TaskResponse<Task> taskResponse = taskService.addTask(task);
+
+           		 if (taskResponse.getStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+           		 } else {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+           		 }
+
+       		} catch (Exception e) {
+          		 log.error("Exception while adding task: {}", e.getMessage());
+           		 return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
+      			  }
+
 	}
 
 	@Override
-	public ResponseEntity<List<Task>> findAllTask(Integer pageSize, Integer page) {
+	public ResponseEntity<TaskResponse<List<Task>>> findAllTask(Integer pageSize, Integer page) {
 		try {
 			log.info("fetching all tasks");
 			Pageable paging = PageRequest.of(page, pageSize);
-			List<Task> taskList = taskService.getAllTask(paging);
+			TaskResponse<Task> taskResponse  = taskService.getAllTask(paging);
 			log.info("taskList :{} ", taskList);
-			if (!taskList.isEmpty()) {
-				return new ResponseEntity<List<Task>>(taskList, HttpStatus.OK);
-			} else {
-				return new ResponseEntity<List<Task>>(HttpStatus.NOT_FOUND);
-			}
+			 if (taskResponse.getStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+           		 } else {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+           		 }
 		} catch (Exception e) {
 			log.info("exception : {}", e);
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<List<Task>>(HttpStatus.NOT_FOUND);
 	}
 
 	@Override
-	public ResponseEntity<Task> getTaskById(Integer id) {
+	public ResponseEntity<TaskResponse<Task>> getTaskById(Integer id) {
 		try {
 			if (id != 0 && id != null) {
 				log.info("get Task By Id : {}", id);
-				Task task = taskService.getTaskById(id);
+				TaskResponse<Task> taskResponse  = taskService.getTaskById(id);
 				log.info("task :{}", task);
-				if (task != null) {
-					return new ResponseEntity<Task>(task, HttpStatus.FOUND);
-				} else {
-					return new ResponseEntity<Task>(HttpStatus.NOT_FOUND);
-				}
-			}
+				if (taskResponse.getStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+           		 } else {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+           		 }
 		} catch (Exception e) {
-			log.error("exception : {}", e);
+			log.info("exception : {}", e);
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<Task>(HttpStatus.NOT_FOUND);
 	}
 
 	@Override
-	public ResponseEntity<List<Task>> getTaskByTitle(String title) {
+	public ResponseEntity<TaskResponse<List<Task>>> getTaskByTitle(String title) {
 
 		try {
-			List<Task> task = taskService.getTaskByTitle(title);
-			return new ResponseEntity<List<Task>>(task, HttpStatus.OK);
+			TaskResponse<Task> taskResponse= taskService.getTaskByTitle(title);
+			if (taskResponse.getStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+           		 } else {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+           		 }
 		} catch (Exception e) {
-			log.error(e.toString());
+			log.info("exception : {}", e);
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<List<Task>>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
-	public ResponseEntity<List<Task>> getTaskByCompletionDate(LocalDateTime completionDate) {
+	public ResponseEntity<TaskResponse<List<Task>>> getTaskByCompletionDate(LocalDateTime completionDate) {
 		try {
-			List<Task> taskList = taskService.getTaskByCompletionDate(completionDate);
+			TaskResponse<Task> taskResponse = taskService.getTaskByCompletionDate(completionDate);
 			log.info("taskList:{} ", taskList);
-			if (!taskList.isEmpty()) {
-				return new ResponseEntity<List<Task>>(taskList, HttpStatus.OK);
-			} else {
-				return new ResponseEntity<List<Task>>(HttpStatus.NO_CONTENT);
-			}
+			if (taskResponse.getStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+           		 } else {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+           		 }
 		} catch (Exception e) {
-			log.error("exception : {}", e);
+			log.info("exception : {}", e);
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<List<Task>>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
-	public ResponseEntity<List<Task>> getTaskByCreationDate(LocalDateTime creationDate) {
+	public ResponseEntity<TaskResponse<List<Task>>> getTaskByCreationDate(LocalDateTime creationDate) {
 		try {
-			List<Task> taskList = taskService.getTaskByCreationDate(creationDate);
+			TaskResponse<Task> taskResponse = taskService.getTaskByCreationDate(creationDate);
 			log.info("taskList :{} ", taskList);
-			if (!taskList.isEmpty()) {
-				return new ResponseEntity<List<Task>>(taskList, HttpStatus.OK);
-			} else {
-				return new ResponseEntity<List<Task>>(HttpStatus.NO_CONTENT);
-			}
+			if (taskResponse.getStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+           		 } else {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+           		 }
 		} catch (Exception e) {
-			log.error("exception : {}", e);
+			log.info("exception : {}", e);
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<List<Task>>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
-	public ResponseEntity<List<Task>> getRemainingTask() {
+	public ResponseEntity<TaskResponse<List<Task>>> getRemainingTask() {
 		try {
-			List<Task> taskList = taskService.getAllRemainingTask();
+			TaskResponse<Task> taskResponse= taskService.getAllRemainingTask();
 			log.info("taskList :{}", taskList);
-			if (!taskList.isEmpty()) {
-				return new ResponseEntity<List<Task>>(taskList, HttpStatus.OK);
-			} else {
-				return new ResponseEntity<List<Task>>(HttpStatus.NO_CONTENT);
-			}
-
+			if (taskResponse.getStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+           		 } else {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+           		 }
 		} catch (Exception e) {
-			log.error("exception : {}", e);
-		}
-		return new ResponseEntity<List<Task>>(HttpStatus.NO_CONTENT);
+			log.info("exception : {}", e);
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
+		}	
 	}
 
 	@Override
-	public ResponseEntity<List<Task>> getIncompleteTask() {
+	public ResponseEntity<TaskResponse<List<Task>>> getIncompleteTask() {
 
 		try {
-			List<Task> list = taskService.getIncompleteTask();
-			return new ResponseEntity<List<Task>>(list, HttpStatus.OK);
+			TaskResponse<Task> taskResponse= taskService.getIncompleteTask();
+			if (taskResponse.getStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+           		 } else {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+           		 }
 		} catch (Exception e) {
-			log.error(e.toString());
-		}
-		return new ResponseEntity<List<Task>>(HttpStatus.NO_CONTENT);
+			log.info("exception : {}", e);
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
+		}	
 	}
 
 	@Override
-	public ResponseEntity<String> deleteTaskById(Integer id) {
+	public ResponseEntity<Task> deleteTaskById(Integer id) {
 		try {
 			log.info("deleting task by id : {} ", id);
 			if (taskService.deleteTaskById(id)) {
@@ -193,17 +202,16 @@ public class TaskControllerImpl implements TaskController {
 		try {
 
 			log.info("updating the task :{}", task);
-			Task updatedTask = taskService.getTaskById(id);
-			if (updatedTask != null) {
-				return new ResponseEntity<Task>(taskService.updateTask(task, id), HttpStatus.OK);
-			} else {
-				return new ResponseEntity<Task>(task, HttpStatus.NOT_FOUND);
-			}
-
+			TaskResponse<Task> taskResponse= taskService.getTaskById(id);
+			if (taskResponse.getStatus()) {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+           		 } else {
+               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+           		 }
 		} catch (Exception e) {
 			log.info("exception : {}", e);
-		}
-		return new ResponseEntity<Task>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
+		}	
 	}
 
 	@Override
