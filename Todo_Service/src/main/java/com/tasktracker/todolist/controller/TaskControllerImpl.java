@@ -100,6 +100,7 @@ public class TaskControllerImpl implements TaskController {
 			log.info("exception : {}", e);
 			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return new ResponseEntity<TaskResponse<Task>>(HttpStatus.NOT_FOUND);
 	}
 
 	@Override
