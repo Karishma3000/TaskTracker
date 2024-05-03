@@ -1,11 +1,9 @@
 package com.tasktracker.todolist.service;
 
-import org.springframework.data.domain.Pageable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.tasktracker.todolist.entity.Task;
@@ -14,7 +12,7 @@ import com.tasktracker.todolist.entity.TaskResponse;
 @Service
 public interface TaskService {
 
-	public TaskResponse<Task> getByUserId(Long userId);
+	public TaskResponse<List<Task>> getByUserId(Long userId);
 
 	public TaskResponse<Task> addTask(Task task);
 

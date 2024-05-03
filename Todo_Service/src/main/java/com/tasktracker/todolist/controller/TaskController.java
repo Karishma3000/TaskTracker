@@ -17,7 +17,7 @@ import com.tasktracker.todolist.entity.TaskResponse;
 public interface TaskController {
 
 	@GetMapping("/user/{userId}")
-	public ResponseEntity<TaskResponse<Task>> getTaskByUserId(@PathVariable Long userId);
+	public ResponseEntity<TaskResponse<List<Task>>> getTaskByUserId(@PathVariable Long userId);
 
 	@PostMapping("/addTask")
 	public ResponseEntity<TaskResponse<Task>> addTask(@RequestBody Task task);

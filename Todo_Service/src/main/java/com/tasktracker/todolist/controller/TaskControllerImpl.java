@@ -27,19 +27,19 @@ public class TaskControllerImpl implements TaskController {
 	static final Logger log = LogManager.getLogger(TaskControllerImpl.class.getName());
 
 	@Override
-	public ResponseEntity<TaskResponse<Task>> getTaskByUserId(Long userId) {
+	public ResponseEntity<TaskResponse<List<Task>>> getTaskByUserId(Long userId) {
 		try {
-			TaskResponse<Task> taskResponse = taskService.getByUserId(userId);
-			 if(taskResponse.isStatus())
-				return new ResponseEntity<TaskResponse<Task>>(taskResponse, HttpStatus.OK);
-			 else 
-				 return new ResponseEntity<TaskResponse<Task>>(taskResponse, HttpStatus.NOT_FOUND);
-			
+			TaskResponse<List<Task>> taskResponse = taskService.getByUserId(userId);
+			if (taskResponse.isStatus())
+				return new ResponseEntity<TaskResponse<List<Task>>>(taskResponse, HttpStatus.OK);
+			else
+				return new ResponseEntity<TaskResponse<List<Task>>>(taskResponse, HttpStatus.NOT_FOUND);
+
 		} catch (Exception e) {
 			log.info("exception : {}", e);
 		}
 
-		return new ResponseEntity<TaskResponse<Task>>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<TaskResponse<List<Task>>>(HttpStatus.NOT_FOUND);
 	}
 
 	@Override
@@ -47,22 +47,25 @@ public class TaskControllerImpl implements TaskController {
 		try {
 			if (task.getTitle() == null || task.getDescription() == null || task.getCompletionDate() == null
 					|| task.getUserId() == null) {
-				return new ResponseEntity<>(new TaskResponse<Task>("Task not added. Required fields are missing.", false), HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(
+						new TaskResponse<Task>("Task not added. Required fields are missing.", false),
+						HttpStatus.BAD_REQUEST);
 			}
 			log.info("adding new task : {}", task);
 
 			TaskResponse<Task> taskResponse = taskService.addTask(task);
 
-           		 if (taskResponse.isStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
-           		 } else {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
-           		 }
+			if (taskResponse.isStatus()) {
+				return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
+			} else {
+				return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+			}
 
-       		} catch (Exception e) {
-          		 log.error("Exception while adding task: {}", e.getMessage());
-           		 return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
-      			  }
+		} catch (Exception e) {
+			log.error("Exception while adding task: {}", e.getMessage());
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
 	}
 
@@ -71,16 +74,17 @@ public class TaskControllerImpl implements TaskController {
 		try {
 			log.info("fetching all tasks");
 			Pageable paging = PageRequest.of(page, pageSize);
-			TaskResponse<List<Task>> taskResponse  = taskService.getAllTask(paging);
+			TaskResponse<List<Task>> taskResponse = taskService.getAllTask(paging);
 			log.info("taskList :{} ", taskResponse.getData());
-			 if (taskResponse.isStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.FOUND);
-           		 } else {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
-           		 }
+			if (taskResponse.isStatus()) {
+				return new ResponseEntity<>(taskResponse, HttpStatus.FOUND);
+			} else {
+				return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+			}
 		} catch (Exception e) {
 			log.info("exception : {}", e);
-			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -89,16 +93,18 @@ public class TaskControllerImpl implements TaskController {
 		try {
 			if (id != 0 && id != null) {
 				log.info("get Task By Id : {}", id);
-				TaskResponse<Task> taskResponse  = taskService.getTaskById(id);
+				TaskResponse<Task> taskResponse = taskService.getTaskById(id);
 				log.info("task :{}", taskResponse.getData());
 				if (taskResponse.isStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.FOUND);
-           		 } else {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
-           		 }
+					return new ResponseEntity<>(taskResponse, HttpStatus.FOUND);
+				} else {
+					return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+				}
+			}
 		} catch (Exception e) {
 			log.info("exception : {}", e);
-			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return new ResponseEntity<TaskResponse<Task>>(HttpStatus.NOT_FOUND);
 	}
@@ -107,15 +113,16 @@ public class TaskControllerImpl implements TaskController {
 	public ResponseEntity<TaskResponse<List<Task>>> getTaskByTitle(String title) {
 
 		try {
-			TaskResponse<List<Task>> taskResponse= taskService.getTaskByTitle(title);
+			TaskResponse<List<Task>> taskResponse = taskService.getTaskByTitle(title);
 			if (taskResponse.isStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.FOUND);
-           		 } else {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
-           		 }
+				return new ResponseEntity<>(taskResponse, HttpStatus.FOUND);
+			} else {
+				return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+			}
 		} catch (Exception e) {
 			log.info("exception : {}", e);
-			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -125,13 +132,14 @@ public class TaskControllerImpl implements TaskController {
 			TaskResponse<List<Task>> taskResponse = taskService.getTaskByCompletionDate(completionDate);
 			log.info("taskList:{} ", taskResponse.getData());
 			if (taskResponse.isStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.OK);
-           		 } else {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
-           		 }
+				return new ResponseEntity<>(taskResponse, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+			}
 		} catch (Exception e) {
 			log.info("exception : {}", e);
-			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -141,46 +149,49 @@ public class TaskControllerImpl implements TaskController {
 			TaskResponse<List<Task>> taskResponse = taskService.getTaskByCreationDate(creationDate);
 			log.info("taskList :{} ", taskResponse.getData());
 			if (taskResponse.isStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.OK);
-           		 } else {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
-           		 }
+				return new ResponseEntity<>(taskResponse, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+			}
 		} catch (Exception e) {
 			log.info("exception : {}", e);
-			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
 	public ResponseEntity<TaskResponse<List<Task>>> getRemainingTask() {
 		try {
-			TaskResponse<List<Task>> taskResponse= taskService.getAllRemainingTask();
+			TaskResponse<List<Task>> taskResponse = taskService.getAllRemainingTask();
 			log.info("taskList :{}", taskResponse.getData());
 			if (taskResponse.isStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.OK);
-           		 } else {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
-           		 }
+				return new ResponseEntity<>(taskResponse, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+			}
 		} catch (Exception e) {
 			log.info("exception : {}", e);
-			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
-		}	
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	@Override
 	public ResponseEntity<TaskResponse<List<Task>>> getIncompleteTask() {
 
 		try {
-			TaskResponse<List<Task>> taskResponse= taskService.getIncompleteTask();
+			TaskResponse<List<Task>> taskResponse = taskService.getIncompleteTask();
 			if (taskResponse.isStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.OK);
-           		 } else {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
-           		 }
+				return new ResponseEntity<>(taskResponse, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+			}
 		} catch (Exception e) {
 			log.info("exception : {}", e);
-			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
-		}	
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	@Override
@@ -203,16 +214,17 @@ public class TaskControllerImpl implements TaskController {
 		try {
 
 			log.info("updating the task :{}", task);
-			TaskResponse<Task> taskResponse= taskService.getTaskById(id);
+			TaskResponse<Task> taskResponse = taskService.getTaskById(id);
 			if (taskResponse.isStatus()) {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.OK);
-           		 } else {
-               			 return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
-           		 }
+				return new ResponseEntity<>(taskResponse, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(taskResponse, HttpStatus.BAD_REQUEST);
+			}
 		} catch (Exception e) {
 			log.info("exception : {}", e);
-			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false), HttpStatus.INTERNAL_SERVER_ERROR);
-		}	
+			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	@Override

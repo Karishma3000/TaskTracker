@@ -11,34 +11,35 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tasktracker.userservice.Entity.User;
+import com.tasktracker.userservice.Entity.UserResponse;
 
 public interface UserController {
 
-	@PostMapping("/createUser")
-	public  String createUser(@RequestBody User user);
+    @PostMapping("/createUser")
+    public ResponseEntity<UserResponse<User>> createUser(@RequestBody User user);
 
-	@GetMapping("/getUsers")
-	public ResponseEntity<List<User>> getAllUsers(@RequestParam(defaultValue = "5", required = false) Integer pageSize,
-			@RequestParam(defaultValue = "0", required = false) Integer page);
+    @GetMapping("/getUsers")
+    public ResponseEntity<UserResponse<List<User>>> getAllUsers(@RequestParam(defaultValue = "5", required = false) Integer pageSize,
+            @RequestParam(defaultValue = "0", required = false) Integer page);
 
-	@GetMapping("/getUsersById")
-	public ResponseEntity<?> getUserById(@RequestParam Long id);
+    @GetMapping("/getUsersById")
+    public ResponseEntity<UserResponse<List<User>>> getUserById(@RequestParam Long id);
 
-	@GetMapping("/getUserByDate")
-	public ResponseEntity<List<User>> getUsersBetweenDates(@RequestParam Date startDate, @RequestParam Date endDate);
+    @GetMapping("/getUserByDate")
+    public ResponseEntity<UserResponse<List<User>>> getUsersBetweenDates(@RequestParam Date startDate, @RequestParam Date endDate);
 
-	@PostMapping("/updateUser")
-	public ResponseEntity<String> updateUser(@RequestParam Long id, @RequestBody User updateUser) throws Exception;
+    @PostMapping("/updateUser")
+    public ResponseEntity<UserResponse<List<User>>> updateUser(@RequestParam Long id, @RequestBody User updateUser) throws Exception;
 
-	@PostMapping("/deleteUser")
-	public ResponseEntity<String> deleteUser(@RequestParam Long id);
+    @PostMapping("/deleteUser")
+    public ResponseEntity<String> deleteUser(@RequestParam Long id);
 
-	@PostMapping("/upload")
-	public ResponseEntity<User> fileUpload(@RequestParam("image") MultipartFile image);
+    @PostMapping("/upload")
+    public ResponseEntity<User> fileUpload(@RequestParam("image") MultipartFile image);
 
-	@GetMapping("/login")
-	public ResponseEntity<String> sendEmail(@RequestParam("email") String email, @RequestParam("password") String password);
+    @GetMapping("/login")
+    public ResponseEntity<String> sendEmail(@RequestParam("email") String email, @RequestParam("password") String password);
 
-	@GetMapping("/verifyOtp")
-	public ResponseEntity<String> verifyOtp(@RequestParam("email") String email, @RequestParam("otp") Long otp);
+    @GetMapping("/verifyOtp")
+    public ResponseEntity<String> verifyOtp(@RequestParam("email") String email, @RequestParam("otp") Long otp);
 }

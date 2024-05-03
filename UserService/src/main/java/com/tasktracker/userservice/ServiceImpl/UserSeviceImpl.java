@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -15,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,7 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tasktracker.userservice.Entity.Task;
+import com.tasktracker.userservice.Entity.TaskResponse;
 import com.tasktracker.userservice.Entity.User;
+import com.tasktracker.userservice.Entity.UserResponse;
 import com.tasktracker.userservice.Repository.UserRepository;
 import com.tasktracker.userservice.Service.UserService;
 import com.tasktracker.userservice.feignclient.TaskClient;
@@ -40,100 +45,122 @@ public class UserSeviceImpl implements UserService {
 	JavaMailSender javaMailSender;
 
 	private static final Logger logger = LoggerFactory.getLogger(UserSeviceImpl.class);
+	private static final String ERROR_MESSAGE = "Something went wrong";
 
 	@Override
-	public String createUser(User user) {
+	public UserResponse<User> createUser(User user) {
+		List<User> userList = new ArrayList<User>();
+
 		try {
 			if (!Objects.equals(user.getEmail(), "") && !Objects.equals(user.getName(), "")) {
 				if (user.getEmail() != null && user.getName() != null) {
 					Optional<User> existUser = userRepository.findByemail(user.getEmail());
+
 					if (existUser.isPresent()) {
-						logger.warn("User already exist");
-						return "User already exist";
+						userList.add(existUser.get());
+						return new UserResponse<>("User already exists", userList, false);
 					} else {
-						if (user.getPassword().matches("[a-z A-Z 0-9 @$]{8,}+")) {
+						if (user.getPassword().matches("[a-zA-Z0-9@$]{8,}+")) {
 							String encoded = new BCryptPasswordEncoder().encode(user.getPassword());
 							user.setPassword(encoded);
 							userRepository.save(user);
-							logger.info("User saved successfully");
-							return "User saved successfully";
+							return new UserResponse<>("User saved successfully", userList, true);
 						} else {
-							return "password should contain uppercase, lowercase, digit and special character and length must be 8 character";
+							return new UserResponse<>(
+									"Password should contain uppercase, lowercase, digit, and special character and length must be 8 characters",
+									userList, false);
 						}
 					}
 				} else {
-					logger.warn("User can not be  null");
-					return "User can not be  null";
+					return new UserResponse<>("User cannot be null", userList, false);
 				}
 			} else {
-				logger.warn("User can not be  Empty");
-				return "User can not be  Empty";
+				return new UserResponse<>("User cannot be empty", userList, false);
 			}
 		} catch (Exception e) {
-			logger.error(e.toString());
+			return new UserResponse<>(ERROR_MESSAGE, userList, false);
 		}
-		return "something went wrong";
 	}
 
 	@Override
-	public List<User> getAllUsers(Pageable paging) {
+	public UserResponse<List<User>> getAllUsers(Pageable paging) {
+		List<User> newUserList = new ArrayList<User>();
 		try {
-			Page<User> userlist = userRepository.findAll(paging);
-			List<User> userList = userlist.getContent();
+			Page<User> userPage = userRepository.findAll(paging);
+			List<User> userList = userPage.getContent();
 
-			List<User> newUserList = userList.stream().map(user -> {
-				user.setTask(taskClient.getTasksOfUser(user.getId()));
-				user.setOtp(null);
-				return user;
-			}).collect(Collectors.toList());
-			return newUserList;
+//			newUserList=userList.stream().map(user->{
+//				ResponseEntity<TaskResponse<List<Task>>> taskByUserId = taskClient.getTaskByUserId(user.getId());
+//				System.out.println(taskByUserId);
+//				TaskResponse<List<Task>> body = taskByUserId.getBody();
+//				List<Task> taskList = body.getData(); 
+//				System.out.print(taskList);
+//				user.setTask(taskList);
+//				System.out.println(user);
+//				return user;
+//			}).collect(Collectors.toList());
+
+			for (User user : userList) {
+				ResponseEntity<TaskResponse<List<Task>>> taskByUserId = taskClient.getTaskByUserId(user.getId());
+				System.out.println(taskByUserId);
+				TaskResponse<List<Task>> body = taskByUserId.getBody();
+				List<Task> taskList = body.getData();
+				System.out.println(taskList);
+				user.setTask(taskList);
+				newUserList.add(user);
+
+			}
+			System.out.println(newUserList);
+			return new UserResponse<List<User>>("Users fetched successfully", newUserList, true);
 		} catch (Exception e) {
-			logger.error(e.toString());
+			return new UserResponse<List<User>>(ERROR_MESSAGE, newUserList, false);
 		}
-		return null;
 	}
 
 	@Override
-	public Object getUserById(Long id) {
+	public UserResponse<List<User>> getUserById(Long id) {
+		List<User> userList = new ArrayList<User>();
 		try {
 			Optional<User> getUser = userRepository.findById(id);
 			if (getUser.isPresent()) {
 				User user = getUser.get();
 				user.setOtp(null);
 				// fetch task by userId
-				List<Task> taskList = taskClient.getTasksOfUser(user.getId()).stream()
-						.sorted((task1, task2) -> task2.getPriority().compareTo(task1.getPriority()))
-						.collect(Collectors.toList());
-				// set list of fetched tasks to user
+				ResponseEntity<TaskResponse<List<Task>>> taskByUserId = taskClient
+						.getTaskByUserId(getUser.get().getId());
+				TaskResponse<List<Task>> body = taskByUserId.getBody();
+				List<Task> taskList = body.getData();
+				System.out.println(taskList);
 				user.setTask(taskList);
-				logger.info("succesfully get the user");
-				return user;
+				userList.add(user);
+
+			}
+
+			return new UserResponse<List<User>>("Users fetched successfully", userList, true);
+		} catch (Exception e) {
+			return new UserResponse<List<User>>(ERROR_MESSAGE, userList, false);
+		}
+	}
+
+	@Override
+	public UserResponse<List<User>> getUsersBetweenDates(Date startDate, Date endDate) {
+		List<User> userList = new ArrayList<User>();
+		try {
+			userList = userRepository.findByCreationDateBetween(startDate, endDate).orElse(null);
+			if (userList != null && !userList.isEmpty()) {
+				return new UserResponse<>("Users fetched successfully", userList, true);
 			} else {
-				logger.warn("invaliad user id");
-				return "invaliad user id";
+				return new UserResponse<>("No users found between the given dates", userList, false);
 			}
 		} catch (Exception e) {
-			logger.error(e.toString());
+			return new UserResponse<>(ERROR_MESSAGE, userList, false);
 		}
-		return "something went wrong";
 	}
 
 	@Override
-	public List<User> getUsersBetweenDates(Date startDate, Date endDate) {
-		try {
-			List<User> userList = userRepository.findByCreationDateBetween(startDate, endDate).get();
-			if (!userList.isEmpty())
-				logger.info("user List is not empty");
-			return userList;
-		} catch (Exception e) {
-			logger.error("exception :{}", e);
-		}
-		return null;
-	}
+	public UserResponse<List<User>> updateUser(Long id, User updateUser) {
 
-	@Override
-	public User updateUser(Long id, User updateUser) {
-
+		List<User> userList = new ArrayList<User>();
 		try {
 			if (id == null || updateUser == null) {
 				throw new IllegalArgumentException("User id and updated user cannot be null");
@@ -141,7 +168,7 @@ public class UserSeviceImpl implements UserService {
 
 			User user = userRepository.findById(id).orElse(null);
 			if (user == null) {
-				throw new IllegalArgumentException("User not found with id: " + id);
+				return (new UserResponse<>("User not found with id: " + id, userList, false));
 			}
 
 			if (updateUser.getName() != null && !updateUser.getName().isEmpty()) {
@@ -150,13 +177,12 @@ public class UserSeviceImpl implements UserService {
 			if (updateUser.getEmail() != null && !updateUser.getEmail().isEmpty()) {
 				user.setEmail(updateUser.getEmail());
 			}
-
+			userList.add(user);
 			userRepository.save(user);
-			return user;
+			return new UserResponse<>("User updated successfully", userList, false);
 		} catch (Exception e) {
-			throw new RuntimeException("Error updating user: " + e.getMessage());
+			return (new UserResponse<>(ERROR_MESSAGE, userList, false));
 		}
-
 	}
 
 	@Override
@@ -207,6 +233,8 @@ public class UserSeviceImpl implements UserService {
 		}
 		return name;
 	}
+
+	@Override
 
 	public void sendSimpleMessage(String email, String password) {
 		try {

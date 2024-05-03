@@ -1,4 +1,4 @@
-package com.tasktracker.todolist.entity;
+package com.tasktracker.userservice.Entity;
 
 import java.util.List;
 

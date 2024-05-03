@@ -2,6 +2,7 @@ package com.tasktracker.todolist.serviceImpl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.tasktracker.todolist.entity.Task;
@@ -31,8 +33,8 @@ public class TaskServiceImpl implements TaskService {
 	private static final Logger log = LoggerFactory.getLogger(TaskServiceImpl.class);
 
 	@Override
-	public TaskResponse<Task> getByUserId(Long userId) {
-		TaskResponse<Task> taskResponse = new TaskResponse<Task>();
+	public TaskResponse<List<Task>> getByUserId(Long userId) {
+		TaskResponse<List<Task>> taskResponse = new TaskResponse<List<Task>>();
 		try {
 			List<Task> taskList = taskRepository.findByuserId(userId);
 			if (!taskList.isEmpty()) {
@@ -77,7 +79,9 @@ public class TaskServiceImpl implements TaskService {
 					newTask.setTodoType(task.getTodoType());
 					newTask.setTags(task.getTags());
 					taskRepository.save(newTask);
-					taskResponse.setData((List<Task>)newTask);
+					List<Task> taskList = new ArrayList<Task>();
+					taskList.add(newTask);
+					taskResponse.setData(taskList);
 					taskResponse.setMessage("success");
 					taskResponse.setStatus(true);
 					return taskResponse;
@@ -129,7 +133,9 @@ public class TaskServiceImpl implements TaskService {
 			if (!task.isEmpty()) {
 				Task taskObj = task.get();
 				log.info("task is not empty");
-				taskResponse.setData((List<Task>) taskObj);
+				List<Task> taskList=new ArrayList<Task>();
+				taskList.add(taskObj);
+				taskResponse.setData(taskList);
 				taskResponse.setMessage("task found");
 				taskResponse.setStatus(true);
 				return taskResponse;
@@ -256,7 +262,6 @@ public class TaskServiceImpl implements TaskService {
 
 	@Override
 	public boolean deleteTaskById(Integer id) {
-		TaskResponse<Task> taskResponse = new TaskResponse<Task>();
 		try {
 			log.info("id : {}", id);
 			Optional<Task> task = taskRepository.findById(id);
@@ -284,6 +289,7 @@ public class TaskServiceImpl implements TaskService {
 				if (task.isPresent()) {
 					log.info(" task is not null :{}", task);
 					Task taskObj = task.get();
+					List<Task> taskList=new ArrayList<Task>();
 					if (newTask.getDescription() != null) {
 						log.info(" description is not null :{}", newTask.getDescription());
 						taskObj.setDescription(newTask.getDescription());
@@ -293,7 +299,8 @@ public class TaskServiceImpl implements TaskService {
 						taskObj.getCompletionDateHistory().add(task.get().getCompletionDate());
 						taskObj.setCompletionDate(newTask.getCompletionDate());
 					}
-					taskResponse.setData((List<Task>) taskObj);
+					taskList.add(taskObj);
+					taskResponse.setData(taskList);
 					taskResponse.setMessage("task updated");
 					taskResponse.setStatus(true);
 					return taskResponse;
@@ -311,26 +318,27 @@ public class TaskServiceImpl implements TaskService {
 
 	}
 
-	@Override
-	// @Scheduled(fixedRate = 6000)
-	public String ScheduleNotification() {
-		System.out.println("scheduler");
-		LocalDateTime currentTime = LocalDateTime.now();
 
-		List<Task> taskList = taskRepository.findAll();
-		for (Task task : taskList) {
+  @Override
+  @Scheduled(fixedRate = 60000)
+  public String ScheduleNotification() {
+      System.out.println("scheduler");
+      LocalDateTime currentTime = LocalDateTime.now();
 
-			System.out.println("cirretnt time " + currentTime);
-			LocalDateTime complitiontime = task.getCompletionDate();
-			System.out.println(complitiontime);
-			System.out.println(task.getCompletionDate());
-//			if (task.getCompletionDate().isAfter(currentTime) && task.getCompletionDate().isBefore(complitiontime)) {
-			if (currentTime.withSecond(0).withNano(0).equals(complitiontime.minusHours(1).withSecond(0).withNano(0))) {
-				System.out.println("your task" + task.getTitle() + " is near complition date");
-				return "your task" + task.getTitle() + " is near complition date";
-			}
-		}
-		return "scheduler";
-	}
+      List<Task> taskList = taskRepository.findAll();
+      for (Task task : taskList) {
+
+          System.out.println(currentTime);
+          LocalDateTime complitiontime = task.getCompletionDate();
+          System.out.println(complitiontime);
+          System.out.println(task.getCompletionDate());
+
+          if (currentTime.withSecond(0).withNano(0).equals(complitiontime.minusHours(1).withSecond(0).withNano(0))) {
+              System.out.println("your task" + task.getTitle() + " is near complition date");
+          }
+      }
+      return null;
+  }
+	
 
 }

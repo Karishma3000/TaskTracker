@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tasktracker.userservice.Entity.User;
+import com.tasktracker.userservice.Entity.UserResponse;
 import com.tasktracker.userservice.Service.UserService;
 
 @RestController
@@ -31,68 +32,86 @@ public class UserControllerImpl implements UserController {
 	@Value("${project.image}")
 	private String path;
 
+	private static final String ERROR_MESSAGE = "Something went wrong";
+
 	@Override
-	public String createUser(User user) {
-		String existEmployee = null;
+	public ResponseEntity<UserResponse<User>> createUser(User user) {
+		UserResponse<User> userResponse = new UserResponse<User>();
 		try {
-			if (user != null) {
-				logger.info("Creating User: {}", user.getName());
-				existEmployee = userService.createUser(user);
+			userResponse = userService.createUser(user);
+			if (userResponse.isStatus()) {
+				return new ResponseEntity<UserResponse<User>>(userResponse, HttpStatus.CREATED);
 			} else {
-				logger.info("User is null");
+				return new ResponseEntity<UserResponse<User>>(HttpStatus.NOT_FOUND);
 			}
 		} catch (Exception e) {
-			logger.error(e.toString());
-		}
-		return existEmployee;
-	}
-
-	@Override
-	public ResponseEntity<List<User>> getAllUsers(Integer pageSize, Integer page) {
-		Pageable paging = PageRequest.of(page, pageSize);
-		List<User> userList = userService.getAllUsers(paging);
-		if(!userList.isEmpty()) {
-			return new ResponseEntity<List<User>>(userList, HttpStatus.OK);
-		}
-		else {
-			return new ResponseEntity<List<User>>(userList, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<UserResponse<User>>(HttpStatus.NOT_FOUND);
 		}
 	}
 
 	@Override
-	public ResponseEntity<?> getUserById(Long id) {
-		if (id != 0) {
-			logger.info("get user by {}", id);
-			Object existEmployee = userService.getUserById(id);
-			return ResponseEntity.status(HttpStatus.CREATED).body(existEmployee);
-		} else {
-			return ResponseEntity.status(HttpStatus.CREATED).body("please enter the user id");
-		}
-	}
-
-	@Override
-	public ResponseEntity<List<User>> getUsersBetweenDates(Date startDate, Date endDate) {
-		List<User> userList= new ArrayList<User>();
-		if (startDate != null & endDate != null) {
-			logger.info("get users present between dates");
-			userList= userService.getUsersBetweenDates(startDate, endDate);
-			return new ResponseEntity<List<User>>(userList, HttpStatus.OK);
-		} else {
-			logger.info("start and end dates must not be null");
-			return new ResponseEntity<List<User>>(userList, HttpStatus.NOT_FOUND);
-		}
-	}
-
-	@Override
-	public ResponseEntity<String> updateUser(Long id, User updateUser) throws Exception {
-		if (id != 0 && updateUser != null) {
-			logger.info("User updation called");
-			User user = userService.updateUser(id, updateUser);
-			if (user != null) {
-				return new ResponseEntity<String>("user updated", HttpStatus.OK);
+	public ResponseEntity<UserResponse<List<User>>> getAllUsers(Integer pageSize, Integer page) {
+		UserResponse<List<User>> userResponse = new UserResponse<List<User>>();
+		try {
+			Pageable paging = PageRequest.of(page, pageSize);
+			userResponse = userService.getAllUsers(paging);
+			if (userResponse.isStatus()) {
+				return new ResponseEntity<UserResponse<List<User>>>(userResponse, HttpStatus.CREATED);
+			} else {
+				return new ResponseEntity<UserResponse<List<User>>>(HttpStatus.NOT_FOUND);
 			}
+
+		} catch (Exception e) {
+			return new ResponseEntity<UserResponse<List<User>>>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<String>("user not updated", HttpStatus.NOT_FOUND);
+	}
+
+	@Override
+	public ResponseEntity<UserResponse<List<User>>> getUserById(Long id) {
+		UserResponse<List<User>> userResponse = new UserResponse<List<User>>();
+		try {
+			userResponse = userService.getUserById(id);
+			if (userResponse.isStatus()) {
+				return new ResponseEntity<UserResponse<List<User>>>(userResponse, HttpStatus.CREATED);
+			} else {
+				return new ResponseEntity<UserResponse<List<User>>>(HttpStatus.NOT_FOUND);
+			}
+
+		} catch (Exception e) {
+			return new ResponseEntity<UserResponse<List<User>>>(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	@Override
+	public ResponseEntity<UserResponse<List<User>>> getUsersBetweenDates(Date startDate, Date endDate) {
+		UserResponse<List<User>> userResponse = new UserResponse<List<User>>();
+		try {
+			userResponse = userService.getUsersBetweenDates(startDate, endDate);
+			if (userResponse.isStatus()) {
+				return new ResponseEntity<UserResponse<List<User>>>(userResponse, HttpStatus.CREATED);
+			} else {
+				return new ResponseEntity<UserResponse<List<User>>>(HttpStatus.NOT_FOUND);
+			}
+
+		} catch (Exception e) {
+			return new ResponseEntity<UserResponse<List<User>>>(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	@Override
+	public ResponseEntity<UserResponse<List<User>>> updateUser(Long id, User updateUser) {
+		UserResponse<List<User>> userResponse = new UserResponse<List<User>>();
+		try {
+			userResponse = userService.updateUser(id, updateUser);
+			if (userResponse.isStatus()) {
+				return new ResponseEntity<UserResponse<List<User>>>(userResponse, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<UserResponse<List<User>>>(HttpStatus.NOT_FOUND);
+			}
+
+		} catch (Exception e) {
+			return new ResponseEntity<UserResponse<List<User>>>(HttpStatus.NOT_FOUND);
+		}
 	}
 
 	@Override
