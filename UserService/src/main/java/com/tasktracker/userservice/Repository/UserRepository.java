@@ -12,7 +12,7 @@ import com.tasktracker.userservice.Entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-	public Optional<User> findByemail(String email);
+	public Optional<User> findByEmail(String email);
 
 	public Optional<List<User>> findByCreationDateBetween(Date startDate, Date endDate);
 
