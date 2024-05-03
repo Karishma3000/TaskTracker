@@ -77,7 +77,7 @@ public class TaskServiceImpl implements TaskService {
 					newTask.setTodoType(task.getTodoType());
 					newTask.setTags(task.getTags());
 					taskRepository.save(newTask);
-					taskResponse.setData(newTask);
+					taskResponse.setData((List<Task>)newTask);
 					taskResponse.setMessage("success");
 					taskResponse.setStatus(true);
 					return taskResponse;
