@@ -12,13 +12,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.tasktracker.todolist.entity.Task;
-import com.tasktracker.todolist.entity.TaskResponse;
 import com.tasktracker.todolist.repository.TaskDao;
 import com.tasktracker.todolist.repository.TaskRepository;
+import com.tasktracker.todolist.response.TaskResponse;
 import com.tasktracker.todolist.service.TaskService;
 
 @Service
@@ -133,7 +132,7 @@ public class TaskServiceImpl implements TaskService {
 			if (!task.isEmpty()) {
 				Task taskObj = task.get();
 				log.info("task is not empty");
-				List<Task> taskList=new ArrayList<Task>();
+				List<Task> taskList = new ArrayList<Task>();
 				taskList.add(taskObj);
 				taskResponse.setData(taskList);
 				taskResponse.setMessage("task found");
@@ -289,7 +288,7 @@ public class TaskServiceImpl implements TaskService {
 				if (task.isPresent()) {
 					log.info(" task is not null :{}", task);
 					Task taskObj = task.get();
-					List<Task> taskList=new ArrayList<Task>();
+					List<Task> taskList = new ArrayList<Task>();
 					if (newTask.getDescription() != null) {
 						log.info(" description is not null :{}", newTask.getDescription());
 						taskObj.setDescription(newTask.getDescription());
@@ -317,28 +316,5 @@ public class TaskServiceImpl implements TaskService {
 		return taskResponse;
 
 	}
-
-
-  @Override
-  @Scheduled(fixedRate = 60000)
-  public String ScheduleNotification() {
-      System.out.println("scheduler");
-      LocalDateTime currentTime = LocalDateTime.now();
-
-      List<Task> taskList = taskRepository.findAll();
-      for (Task task : taskList) {
-
-          System.out.println(currentTime);
-          LocalDateTime complitiontime = task.getCompletionDate();
-          System.out.println(complitiontime);
-          System.out.println(task.getCompletionDate());
-
-          if (currentTime.withSecond(0).withNano(0).equals(complitiontime.minusHours(1).withSecond(0).withNano(0))) {
-              System.out.println("your task" + task.getTitle() + " is near complition date");
-          }
-      }
-      return null;
-  }
-	
 
 }

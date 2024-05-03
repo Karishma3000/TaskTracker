@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tasktracker.userservice.Entity.User;
-import com.tasktracker.userservice.Entity.UserResponse;
+import com.tasktracker.userservice.response.UserResponse;
+
 
 public interface UserController {
 

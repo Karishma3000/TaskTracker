@@ -7,7 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.tasktracker.todolist.entity.Task;
-import com.tasktracker.todolist.entity.TaskResponse;
+import com.tasktracker.todolist.response.TaskResponse;
+
 
 @Service
 public interface TaskService {
@@ -34,6 +35,5 @@ public interface TaskService {
 
 	public TaskResponse<Task> updateTask(Task task, Integer id);
 
-	public String ScheduleNotification();
 
 }

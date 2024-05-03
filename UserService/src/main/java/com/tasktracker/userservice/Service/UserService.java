@@ -4,12 +4,12 @@ import java.sql.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tasktracker.userservice.Entity.User;
-import com.tasktracker.userservice.Entity.UserResponse;
+import com.tasktracker.userservice.response.UserResponse;
+
 
 @Service
 public interface UserService {

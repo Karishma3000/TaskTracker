@@ -17,8 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tasktracker.userservice.Entity.User;
-import com.tasktracker.userservice.Entity.UserResponse;
+
 import com.tasktracker.userservice.Service.UserService;
+import com.tasktracker.userservice.response.UserResponse;
 
 @RestController
 @RequestMapping("/user")

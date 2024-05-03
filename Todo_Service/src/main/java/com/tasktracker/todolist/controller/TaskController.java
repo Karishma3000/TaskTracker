@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.tasktracker.todolist.entity.Task;
-import com.tasktracker.todolist.entity.TaskResponse;
+import com.tasktracker.todolist.response.TaskResponse;
+
 
 public interface TaskController {
 
@@ -50,9 +51,6 @@ public interface TaskController {
 	public ResponseEntity<String> deleteTaskById(@PathVariable Integer id);
 
 	@PostMapping("/update/{id}")
-	public ResponseEntity<TaskResponse<Task>> updateTask(@RequestBody Task task, @PathVariable Integer id);;
-
-	@GetMapping("/getNotification")
-	public String schedularNotification();
+	public ResponseEntity<TaskResponse<Task>> updateTask(@RequestBody Task task, @PathVariable Integer id);
 
 }

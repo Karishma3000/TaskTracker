@@ -1,6 +1,4 @@
-package com.tasktracker.todolist.entity;
-
-import java.util.List;
+package com.tasktracker.todolist.response;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,11 +6,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class TaskResponse<T> {
-	
-	private List<Task> data;
-	
+
+	private Object data;
+
 	private String message;
-	
+
 	private boolean status;
 
 	public TaskResponse(String message, boolean status) {

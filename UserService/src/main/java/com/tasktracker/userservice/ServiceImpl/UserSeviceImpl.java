@@ -9,14 +9,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -27,10 +25,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tasktracker.userservice.Entity.Task;
 import com.tasktracker.userservice.Entity.TaskResponse;
 import com.tasktracker.userservice.Entity.User;
-import com.tasktracker.userservice.Entity.UserResponse;
 import com.tasktracker.userservice.Repository.UserRepository;
 import com.tasktracker.userservice.Service.UserService;
 import com.tasktracker.userservice.feignclient.TaskClient;
+import com.tasktracker.userservice.response.UserResponse;
 
 @Service
 public class UserSeviceImpl implements UserService {

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tasktracker.todolist.entity.Task;
-import com.tasktracker.todolist.entity.TaskResponse;
+import com.tasktracker.todolist.response.TaskResponse;
 import com.tasktracker.todolist.service.TaskService;
 
 @RestController
@@ -225,17 +225,6 @@ public class TaskControllerImpl implements TaskController {
 			return new ResponseEntity<>(new TaskResponse<>("Task not added. Internal Server Error", false),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-	}
-
-	@Override
-	public String schedularNotification() {
-		try {
-			String string = taskService.ScheduleNotification();
-			return string;
-		} catch (Exception e) {
-			log.error(e.toString());
-		}
-		return "scheduler not working";
 	}
 
 }

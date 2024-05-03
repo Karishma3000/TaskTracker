@@ -1,4 +1,4 @@
-package com.tasktracker.userservice.Entity;
+package com.tasktracker.userservice.response;
 
 import java.util.List;
 
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserResponse<T> {
 	private String message;
-	private List<User> data;
+	private Object data;
 	private boolean Status;
-	public UserResponse(String message, List<User> data, boolean status) {
+	public UserResponse(String message,Object data, boolean status) {
 		super();
 		this.message = message;
 		this.data = data;
