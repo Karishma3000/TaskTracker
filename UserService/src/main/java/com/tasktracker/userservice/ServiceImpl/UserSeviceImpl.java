@@ -54,7 +54,7 @@ public class UserSeviceImpl implements UserService {
 		try {
 			if (!Objects.equals(user.getEmail(), "") && !Objects.equals(user.getName(), "")) {
 				if (user.getEmail() != null && user.getName() != null) {
-					Optional<User> existUser = userRepository.findByemail(user.getEmail());
+					Optional<User> existUser = userRepository.findByEmail(user.getEmail());
 
 					if (existUser.isPresent()) {
 						userList.add(existUser.get());
@@ -240,7 +240,7 @@ public class UserSeviceImpl implements UserService {
 		try {
 			Random random = new Random();
 			long otp = random.nextInt(1000, 9999);
-			Optional<User> user = userRepository.findByemail(email);
+			Optional<User> user = userRepository.findByEmail(email);
 			if (user.isPresent() && user.get().getPassword().equals(password)) {
 				user.get().setOtp(otp);
 				userRepository.save(user.get());
@@ -263,7 +263,7 @@ public class UserSeviceImpl implements UserService {
 	@Override
 	public Boolean checkOtp(String email, Long otp) {
 
-		Optional<User> user = userRepository.findByemail(email);
+		Optional<User> user = userRepository.findByEmail(email);
 		if (user.get().getOtp().equals(otp)) {
 			user.get().setOtp(null);
 			userRepository.save(user.get());
